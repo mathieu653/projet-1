@@ -1,497 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jeu du Clic Rapide avec Boutique</title>
-  <style>
-    :root {
-      --bg: #222;
-      --text: #eee;
-      --btn-bg: #3498db;
-      --btn-hover: #2980b9;
-      --btn-active: #1abc9c;
-    }
-    body.light {
-      --bg: #f0f0f0;
-      --text: #222;
-      --btn-bg: #2980b9;
-      --btn-hover: #3498db;
-      --btn-active: #16a085;
-    }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      user-select: none;
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-    #gameArea {
-      position: relative;
-      width: 300px;
-      height: 300px;
-      margin: 20px 0;
-      border: 2px solid var(--btn-bg);
-      border-radius: 15px;
-      background: #111;
-      overflow: hidden;
-    }
-    body.light #gameArea {
-      background: #ddd;
-      border-color: var(--btn-bg);
-    }
-    #targetBtn {
-      position: absolute;
-      width: 70px;
-      height: 70px;
-      cursor: pointer;
-    }
-    #targetBtn:hover {
-      background: var(--btn-hover);
-      box-shadow: 0 0 20px var(--btn-hover);
-    }
-    #targetBtn:active {
-      background: var(--btn-active);
-      box-shadow: 0 0 25px var(--btn-active);
-    }
-    /* Skins styles */
-    .skin-1 { background: #3498db; box-shadow: 0 0 10px #3498db; border-radius: 50%; }
-    .skin-2 { background: #e74c3c; box-shadow: 0 0 10px #e74c3c; border-radius: 50%; }
-    .skin-3 { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; border-radius: 20%; }
-    .skin-4 { background: linear-gradient(45deg, #f1c40f, #e67e22); box-shadow: 0 0 15px #f39c12; border-radius: 50%; }
-    .skin-5 { background: #9b59b6; box-shadow: 0 0 15px #8e44ad; border-radius: 0%; }
-
-    #controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 15px;
-    }
-    button, select {
-      padding: 10px 15px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background: var(--btn-bg);
-      color: white;
-      transition: background-color 0.3s ease;
-    }
-    button:hover, select:hover {
-      background: var(--btn-hover);
-    }
-    #scoreboard {
-      margin-top: 15px;
-      width: 320px;
-      max-width: 90vw;
-      text-align: left;
-    }
-    #scoreboard h3 {
-      margin-bottom: 5px;
-    }
-    #scoreboard ol {
-      padding-left: 20px;
-    }
-    #status {
-      font-size: 1.2rem;
-      min-height: 1.5em;
-    }
-    #goldDisplay {
-      font-size: 1.1rem;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
-    .default.green { background-color: #2ecc71; }
-.default.red { background-color: #e74c3c; }
-/* ... */
-
-.futuristic.green { background: linear-gradient(...); }
-.futuristic.red { background: linear-gradient(...); }
-/* ... */
-
-.pixels.green { background-image: url(...); }
-/* ... */
-
-
-    /* Boutique */
-    #shopModal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: var(--bg);
-      color: var(--text);
-      border-radius: 15px;
-      padding: 20px;
-      width: 350px;
-      max-width: 90vw;
-      box-shadow: 0 0 15px rgba(0,0,0,0.7);
-      display: none;
-      flex-direction: column;
-      z-index: 10;
-    }
-    #shopModal.light {
-      background: var(--bg);
-      color: var(--text);
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    }
-    #shopModal h2 {
-      margin-top: 0;
-    }
-    #shopItems {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
-    .shopItem {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 3px solid transparent;
-      cursor: pointer;
-      box-shadow: 0 0 10px #999;
-      transition: border-color 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      font-size: 0.8rem;
-      color: white;
-      user-select: none;
-    }
-    .shopItem.locked::after {
-      content: attr(data-price) "⛀";
-      position: absolute;
-      bottom: -18px;
-      font-size: 0.75rem;
-      color: #f39c12;
-      width: 100%;
-      text-align: center;
-    }
-    .shopItem.selected {
-      border-color: #f39c12;
-      box-shadow: 0 0 20px #f39c12;
-    }
-    .shopItem.skin-1 { background: #3498db; box-shadow: 0 0 10px #3498db; }
-    .shopItem.skin-2 { background: #e74c3c; box-shadow: 0 0 10px #e74c3c; }
-    .shopItem.skin-3 { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; border-radius: 20%; }
-    .shopItem.skin-4 { background: linear-gradient(45deg, #f1c40f, #e67e22); box-shadow: 0 0 15px #f39c12; }
-    .shopItem.skin-5 { background: #9b59b6; box-shadow: 0 0 15px #8e44ad; border-radius: 0%; }
-
-    #closeShop {
-      margin-top: 15px;
-      background: #c0392b;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jeu du Clic Rapide avec Boutique</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🎯 Jeu du Clic Rapide avec Boutique</h1>
-  <div id="controls">
+<h1>🎯 Jeu du Clic Rapide avec Boutique</h1>
+<div id="controls">
     <button id="startBtn">Démarrer</button>
     <select id="durationSelect">
-      <option value="10">10 secondes</option>
-      <option value="20" selected>20 secondes</option>
-      <option value="30">30 secondes</option>
+        <option value="10">10 secondes</option>
+        <option value="20" selected>20 secondes</option>
+        <option value="30">30 secondes</option>
     </select>
     <button id="themeBtn">🌗 Thème</button>
-    <button id="shopBtn">🛒 Boutique</button>
-  </div>
+    <button id="colorsBtn">🎨 Couleurs</button>
+    <button id="emojisBtn">😀 Émojis</button>
+</div>
 
-  <div id="goldDisplay">⛀ Gold: 0</div>
+<div id="goldDisplay">⛀ Gold: 0</div>
 
-  <div id="gameArea"></div>
+<div id="gameArea"></div>
 
-  <div id="status"></div>
+<div id="status"></div>
 
-  <div id="scoreboard">
+<div id="scoreboard">
     <h3>🏆 Meilleurs Scores (Top 5 moyenne temps de réaction en ms)</h3>
     <ol id="highScoresList">
-      <li>Aucun score enregistré.</li>
+        <li>Aucun score enregistré.</li>
     </ol>
-  </div>
+</div>
 
-  <!-- Boutique modal -->
-  <div id="shopModal" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
-    <h2 id="shopTitle">Boutique de Skins</h2>
-    <div id="shopItems"></div>
-    <button id="closeShop">Fermer</button>
-  </div>
+<!-- Modal Couleurs -->
+<div id="colorsModal" role="dialog" aria-modal="true" aria-labelledby="colorsTitle">
+    <h2 id="colorsTitle">Boutique de Couleurs</h2>
+    <div id="colorItems"></div>
+    <button id="closeColors">Fermer</button>
+</div>
 
-<script>
-  const gameArea = document.getElementById('gameArea');
-  const startBtn = document.getElementById('startBtn');
-  const durationSelect = document.getElementById('durationSelect');
-  const status = document.getElementById('status');
-  const highScoresList = document.getElementById('highScoresList');
-  const themeBtn = document.getElementById('themeBtn');
-  const shopBtn = document.getElementById('shopBtn');
-  const goldDisplay = document.getElementById('goldDisplay');
-  const shopModal = document.getElementById('shopModal');
-  const shopItemsContainer = document.getElementById('shopItems');
-  const closeShopBtn = document.getElementById('closeShop');
+<!-- Modal Émojis -->
+<div id="emojisModal" role="dialog" aria-modal="true" aria-labelledby="emojisTitle">
+    <h2 id="emojisTitle">Boutique d'Émojis</h2>
+    <div id="emojiItems"></div>
+    <button id="closeEmojis">Fermer</button>
+</div>
 
-  let gameDuration = 20; // secondes
-  let gameActive = false;
-  let currentTargetAppearTime = 0;
-  let timeoutId = null;
-  let reactionTimes = [];
-
-  // Gold & skins
-  let gold = 0;
-  let ownedSkins = [];
-  let selectedSkin = 'skin-1';
-
-  // Skins catalogue
-  const skins = [
-    { id: 'skin-1', price: 0, desc: 'Bleu classique' },
-    { id: 'skin-2', price: 20, desc: 'Rouge vif' },
-    { id: 'skin-3', price: 30, desc: 'Vert carré' },
-    { id: 'skin-4', price: 40, desc: 'Jaune dégradé' },
-    { id: 'skin-5', price: 50, desc: 'Violet carré' },
-  ];
-
-  // Chargement localStorage
-  function loadData() {
-    gold = parseInt(localStorage.getItem('gold') || '0');
-    ownedSkins = JSON.parse(localStorage.getItem('ownedSkins') || '["skin-1"]');
-    selectedSkin = localStorage.getItem('selectedSkin') || 'skin-1';
-    updateGoldDisplay();
-  }
-  function saveData() {
-    localStorage.setItem('gold', gold);
-    localStorage.setItem('ownedSkins', JSON.stringify(ownedSkins));
-    localStorage.setItem('selectedSkin', selectedSkin);
-  }
-
-  // Mise à jour affichage gold
-  function updateGoldDisplay() {
-    goldDisplay.textContent = `⛀ Gold: ${gold}`;
-  }
-
-  // Création bouton cible
-  function createTargetBtn() {
-    const btn = document.createElement('button');
-    btn.id = 'targetBtn';
-    btn.className = selectedSkin;
-    btn.title = "Clique moi vite !";
-    btn.addEventListener('click', () => {
-      if (!gameActive) return;
-      const now = performance.now();
-      const reactionTime = now - currentTargetAppearTime;
-      reactionTimes.push(reactionTime);
-
-      gold++;
-      updateGoldDisplay();
-      saveData();
-
-      spawnTarget();
-
-      updateStatus(`Réaction : ${reactionTime.toFixed(0)} ms | Gold +1`);
-
-    });
-    return btn;
-  }
-
-  // Apparition aléatoire
-  function spawnTarget() {
-    if (!gameActive) return;
-    if (timeoutId) clearTimeout(timeoutId);
-    gameArea.innerHTML = '';
-    const btn = createTargetBtn();
-    const maxX = gameArea.clientWidth - 70;
-    const maxY = gameArea.clientHeight - 70;
-    const x = Math.random() * maxX;
-    const y = Math.random() * maxY;
-    btn.style.left = `${x}px`;
-    btn.style.top = `${y}px`;
-    gameArea.appendChild(btn);
-    currentTargetAppearTime = performance.now();
-
-    // Timeout pour changer position si pas cliqué
-    timeoutId = setTimeout(() => {
-      updateStatus('Trop lent !');
-      spawnTarget();
-    }, 1500);
-  }
-
-  // Démarrer partie
-  function startGame() {
-    if (gameActive) return;
-    reactionTimes = [];
-    gold = parseInt(localStorage.getItem('gold') || '0');
-    updateGoldDisplay();
-    gameDuration = parseInt(durationSelect.value);
-    gameActive = true;
-    updateStatus(`Jeu démarré: ${gameDuration}s, clique vite sur le bouton bleu !`);
-    spawnTarget();
-
-    // Timer fin de jeu
-    setTimeout(() => {
-      endGame();
-    }, gameDuration * 1000);
-  }
-
-  // Fin de partie
-  function endGame() {
-    gameActive = false;
-    gameArea.innerHTML = '';
-    if (reactionTimes.length === 0) {
-      updateStatus("Aucun clic détecté. Essaie encore !");
-      return;
-    }
-    const avgTime = reactionTimes.reduce((a,b) => a+b,0) / reactionTimes.length;
-    updateStatus(`Jeu terminé! Score: ${reactionTimes.length} clics, moyenne ${avgTime.toFixed(0)} ms`);
-
-    // Sauvegarder score
-    saveScore(avgTime);
-  }
-
-  // Status affichage
-  function updateStatus(msg) {
-    status.textContent = msg;
-  }
-
-  // Scores
-  function saveScore(avgTime) {
-    let scores = JSON.parse(localStorage.getItem('reactionScores') || '[]');
-    scores.push(avgTime);
-    scores.sort((a,b) => a-b); // plus petit temps mieux
-    scores = scores.slice(0,5);
-    localStorage.setItem('reactionScores', JSON.stringify(scores));
-    updateScoresList();
-  }
-  function updateScoresList() {
-    const scores = JSON.parse(localStorage.getItem('reactionScores') || '[]');
-    highScoresList.innerHTML = '';
-    if(scores.length === 0){
-      highScoresList.innerHTML = '<li>Aucun score enregistré.</li>';
-      return;
-    }
-    scores.forEach(score => {
-      const li = document.createElement('li');
-      li.textContent = `${score.toFixed(0)} ms`;
-      highScoresList.appendChild(li);
-    });
-  }
-
-  // Thème
-  function toggleTheme() {
-    document.body.classList.toggle('light');
-    // Ajuster modal thème aussi
-    if(document.body.classList.contains('light')) {
-      shopModal.classList.add('light');
-    } else {
-      shopModal.classList.remove('light');
-    }
-  }
-
-  // Boutique
-  function openShop() {
-    shopModal.style.display = 'flex';
-    renderShopItems();
-  }
-  function closeShop() {
-    shopModal.style.display = 'none';
-  }
-  function renderShopItems() {
-  shopItemsContainer.innerHTML = '';
-  skins.forEach(skin => {
-    const div = document.createElement('div');
-    div.className = 'shopItem ' + skin.id;
-    div.dataset.price = skin.price;
-    div.title = `${skin.desc}`;
-    if (!ownedSkins.includes(skin.id)) {
-      div.classList.add('locked');
-    }
-    if (skin.id === selectedSkin) {
-      div.classList.add('selected');
-    }
-
-    // Label sous le skin
-    const label = document.createElement('div');
-    label.style.position = 'absolute';
-    label.style.bottom = '-18px';
-    label.style.width = '100%';
-    label.style.textAlign = 'center';
-    label.style.fontSize = '0.75rem';
-    label.style.color = '#f39c12';
-    label.style.userSelect = 'none';
-
-    if (ownedSkins.includes(skin.id)) {
-      if (skin.id === selectedSkin) {
-        label.textContent = 'Équipé';
-      } else {
-        label.textContent = 'Clique pour équiper';
-      }
-    } else {
-      label.textContent = `Prix: ${skin.price} ⛀`;
-    }
-    div.appendChild(label);
-
-    div.addEventListener('click', () => {
-      if (ownedSkins.includes(skin.id)) {
-        // Équiper skin
-        selectedSkin = skin.id;
-        saveData();
-        applySkin();
-        renderShopItems();
-      } else {
-        // Acheter si possible
-        if (gold >= skin.price) {
-          gold -= skin.price;
-          ownedSkins.push(skin.id);
-          selectedSkin = skin.id;
-          saveData();
-          updateGoldDisplay();
-          applySkin();
-          renderShopItems();
-        } else {
-          alert("Pas assez de gold pour acheter ce skin.");
-        }
-      }
-    });
-    shopItemsContainer.appendChild(div);
-  });
-}
-
-function applySkin() {
-  // Récupère tous les boutons du jeu
-  const buttons = document.querySelectorAll('.colorBtn');
-
-  // Liste des classes de tous les skins disponibles (exemple)
-  const allSkins = skins.map(s => s.id); // si tu as ton tableau skins
-
-  buttons.forEach(btn => {
-    // Supprime toutes les classes de skins possibles
-    allSkins.forEach(skinClass => btn.classList.remove(skinClass));
-    // Ajoute la classe du skin sélectionné
-    btn.classList.add(selectedSkin);
-  });
-}
-
-
-  // Événements
-  startBtn.addEventListener('click', startGame);
-  themeBtn.addEventListener('click', toggleTheme);
-  shopBtn.addEventListener('click', openShop);
-  closeShopBtn.addEventListener('click', closeShop);
-
-  // Init
-  loadData();
-  updateScoresList();
-  toggleTheme(); // pour initialiser la modale thème
-
-</script>
+<script src="script.js"></script>
 </body>
 </html>
