@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Jeu du Clic Rapide avec Boutique</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+
 </head>
 <body>
 <h1>🎯 Jeu du Clic Rapide avec Boutique</h1>
@@ -14,7 +16,14 @@
         <option value="10">10 secondes</option>
         <option value="20" selected>20 secondes</option>
         <option value="30">30 secondes</option>
+        <option value="9999">infinie</option>
     </select>
+    <select id="sizeSelect">
+        <option value="small">Petit</option>
+        <option value="medium" selected>Moyen</option>
+        <option value="large">Grand</option>
+      </select>
+      
     <button id="themeBtn">🌗 Thème</button>
     <button id="colorsBtn">🎨 Couleurs</button>
     <button id="emojisBtn">😀 Émojis</button>
@@ -50,3 +59,4 @@
 <script src="script.js"></script>
 </body>
 </html>
+
