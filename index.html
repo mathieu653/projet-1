@@ -10,7 +10,7 @@
 
 </head>
 <body>
-<h1>🎯 Jeu du Clic Rapide avec Boutique</h1>
+<h1>🎯 Clic Rapide</h1>
 <div id="controls">
     <button id="startBtn">Démarrer</button>
     <select id="durationSelect">
@@ -26,8 +26,7 @@
       </select>
       
     <button id="themeBtn">🌗 Thème</button>
-    <button id="colorsBtn">🎨 Couleurs</button>
-    <button id="emojisBtn">😀 Émojis</button>
+    <button id="colorsBtn">🛒 Boutique</button>
 </div>
 
 <div id="goldDisplay">⛀ Gold: 0</div>
@@ -43,19 +42,22 @@
     </ol>
 </div>
 
-<!-- Modal Couleurs -->
-<div id="colorsModal" role="dialog" aria-modal="true" aria-labelledby="colorsTitle">
-    <h2 id="colorsTitle">Boutique de Couleurs</h2>
-    <div id="colorItems"></div>
-    <button id="closeColors">Fermer</button>
-</div>
-
-<!-- Modal Émojis -->
-<div id="emojisModal" role="dialog" aria-modal="true" aria-labelledby="emojisTitle">
-    <h2 id="emojisTitle">Boutique d'Émojis</h2>
-    <div id="emojiItems"></div>
-    <button id="closeEmojis">Fermer</button>
-</div>
+<!-- Modal Boutique -->
+<div id="shopModal" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
+    <h2 id="shopTitle">🛒 Boutique</h2>
+    
+    <div id="shopContent">
+        <h3 class="shopSectionTitle">🎨 Couleurs</h3>
+        <div id="colorItems" class="shopSection"></div>
+      
+        <hr class="shopDivider">
+      
+        <h3 class="shopSectionTitle">😀 Émojis</h3>
+        <div id="emojiItems" class="shopSection"></div>
+      </div>
+    <button id="closeShop">Fermer</button>
+  </div>
+  
 
 <script src="script.js"></script>
 </body>
