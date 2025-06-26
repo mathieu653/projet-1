@@ -24,6 +24,23 @@ body {
   padding: 20px;
   user-select: none;
 }
+
+#gameArea.small {
+  width: 200px;
+  height: 200px;
+}
+
+#gameArea.medium {
+  width: 300px;
+  height: 300px;
+}
+
+#gameArea.large {
+  width: 1500px;
+  height: 800px;
+}
+
+
 h1 {
   margin-bottom: 10px;
 }
@@ -61,6 +78,11 @@ body.light #gameArea {
 .skin-3 { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; border-radius: 20%; }
 .skin-4 { background: linear-gradient(45deg, #f1c40f, #e67e22); box-shadow: 0 0 15px #f39c12; border-radius: 50%; }
 .skin-5 { background: #9b59b6; box-shadow: 0 0 15px #8e44ad; border-radius: 0%; }
+.skin-6 { background: #34495e; box-shadow: 0 0 15px #2c3e50; border-radius: 10%; }
+.skin-7 { background: #1abc9c; box-shadow: 0 0 15px #16a085; border-radius: 50%; }
+.skin-8 { background: #f39c12; box-shadow: 0 0 15px #e67e22; border-radius: 50%; }
+.skin-9 { background: #e74c3c; box-shadow: 0 0 15px #c0392b; border-radius: 50%; }
+.skin-10 { background: linear-gradient(270deg, #ff0080, #ff8c00, #40e0d0, #8a2be2, #ff0080); animation: rainbowShift 5s ease infinite; box-shadow: 0 0 15px white; border-radius: 50%; }
 
 #controls {
   display: flex;
@@ -129,6 +151,47 @@ button:hover, select:hover {
   flex-direction: column;
   z-index: 10;
 }
+
+.shopItem.locked::after,
+.colorItem.locked::after,
+.emojiItem.locked::after {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #f39c12;
+  bottom: -22px;
+}
+
+.shopItem.locked::after,
+.colorItem.locked::after,
+.emojiItem.locked::after {
+  font-family: 'Orbitron', sans-serif;
+}
+
+@keyframes rainbowShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.colorItem:last-child {
+  background: linear-gradient(270deg, #ff0080, #ff8c00, #40e0d0, #8a2be2, #ff0080);
+  background-size: 600% 600%;
+  animation: rainbowShift 5s ease infinite;
+  color: white;
+  box-shadow: 0 0 20px #fff;
+  border: 3px solid #f39c12;
+}
+
+.skin-animated {
+  background: linear-gradient(270deg, #ff0080, #ff8c00, #40e0d0, #8a2be2, #ff0080);
+  background-size: 600% 600%;
+  animation: rainbowShift 5s ease infinite;
+  box-shadow: 0 0 20px white;
+  border-radius: 50%; /* ou comme tu veux */
+}
+
+
 #shopModal.light {
   background: var(--bg);
   color: var(--text);
@@ -140,7 +203,7 @@ button:hover, select:hover {
 #shopItems {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px;
   justify-content: center;
 }
 .shopItem {
@@ -159,15 +222,7 @@ button:hover, select:hover {
   color: white;
   user-select: none;
 }
-.shopItem.locked::after {
-  content: attr(data-price) "⛀";
-  position: absolute;
-  bottom: -18px;
-  font-size: 0.75rem;
-  color: #f39c12;
-  width: 100%;
-  text-align: center;
-}
+
 .shopItem.selected {
   border-color: #f39c12;
   box-shadow: 0 0 20px #f39c12;
@@ -210,13 +265,13 @@ button:hover, select:hover {
 #colorItems, #emojiItems {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px;
   justify-content: center;
 }
 
 .colorItem, .emojiItem {
-  width: 60px;
-  height: 60px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   border: 3px solid transparent;
   cursor: pointer;
@@ -235,16 +290,6 @@ button:hover, select:hover {
   background: #444;
 }
 
-.colorItem.locked::after,
-.emojiItem.locked::after {
-  content: attr(data-price) "⛀";
-  position: absolute;
-  bottom: -18px;
-  font-size: 0.75rem;
-  color: #f39c12;
-  width: 100%;
-  text-align: center;
-}
 
 .colorItem.selected, .emojiItem.selected {
   border-color: #f39c12;
