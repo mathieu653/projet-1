@@ -36,9 +36,9 @@ const colors = [
   { id: 'skin-5', price: 50, desc: 'Violet carré' },
   { id: 'skin-6', price: 60, desc: 'Orange dégradé' },
   { id: 'skin-7', price: 70, desc: 'Rose classique' },
-  { id: 'skin-8', price: 80, desc: 'Cyan dégradé' },
-  { id: 'skin-9', price: 90, desc: 'Gris carré' },
-  { id: 'skin-10', price: 100, desc: 'Noir dégradé' },
+  { id: 'skin-8', price: 80, desc: 'Pink' },
+  { id: 'skin-9', price: 90, desc: 'gold' },
+  { id: 'skin-10', price: 999, desc: 'Noir dégradé' },
 ];
 
 
@@ -53,7 +53,7 @@ const emojis = [
   { id: 'emoji-7', emoji: '🌟', price: 75, desc: 'Étoile' },
   { id: 'emoji-8', emoji: '⚡️', price: 85, desc: 'Éclair' },
   { id: 'emoji-9', emoji: '🕹️', price: 95, desc: 'Joystick' },
-  { id: 'emoji-10', emoji: '🎉', price: 105, desc: 'Confettis' },
+  { id: 'emoji-10', emoji: '🧿', price: 999, desc: 'Confettis' },
 ];
 
 
@@ -97,6 +97,8 @@ function loadData() {
   selectedEmoji = localStorage.getItem('selectedEmoji') || 'emoji-1';
   updateGoldDisplay();
 }
+
+
 
 // Sauvegarde des données
 function saveData() {
@@ -237,39 +239,6 @@ function toggleTheme() {
   }
 }
 
-// Gestion des modaux
-function openColorsModal() {
-  colorsModal.style.display = 'flex';
-  renderColorItems();
-
-  // Ajuster le thème
-  if(document.body.classList.contains('light')) {
-    colorsModal.classList.add('light');
-  } else {
-    colorsModal.classList.remove('light');
-  }
-}
-
-function openEmojisModal() {
-  emojisModal.style.display = 'flex';
-  renderEmojiItems();
-
-  // Ajuster le thème
-  if(document.body.classList.contains('light')) {
-    emojisModal.classList.add('light');
-  } else {
-    emojisModal.classList.remove('light');
-  }
-}
-
-function closeColorsModal() {
-  colorsModal.style.display = 'none';
-}
-
-function closeEmojisModal() {
-  emojisModal.style.display = 'none';
-}
-
 // Rendu des items dans les modaux
 function renderColorItems() {
   colorItemsContainer.innerHTML = '';
@@ -293,7 +262,7 @@ function renderColorItems() {
     label.style.width = '100%';
     label.style.textAlign = 'center';
     label.style.fontSize = '0.75rem';
-    label.style.color = '#f39c12';
+    label.style.color = 'black';
     label.style.userSelect = 'none';
 
     if (ownedColors.includes(color.id)) {
@@ -397,6 +366,47 @@ function renderEmojiItems() {
     emojiItemsContainer.appendChild(div);
   });
 }
+
+const shopModal = document.getElementById('shopModal');
+const shopTabs = document.querySelectorAll('.tabBtn');
+const shopSections = document.querySelectorAll('.shopTab');
+const openShopBtn = document.getElementById('colorsBtn'); // ou remplace par un bouton "Boutique"
+
+document.getElementById('closeShop').addEventListener('click', () => {
+  shopModal.style.display = 'none';
+});
+
+shopTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const selected = tab.dataset.tab;
+    
+    shopTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    shopSections.forEach(section => {
+      section.classList.remove('active');
+    });
+    document.getElementById(selected + 'Items').classList.add('active');
+  });
+});
+
+// Ouvrir la boutique
+openShopBtn.addEventListener('click', () => {
+  shopModal.style.display = 'flex';
+  renderColorItems();
+  renderEmojiItems();
+});
+
+// Fermer la boutique si on clique en dehors
+shopModal.addEventListener('click', (e) => {
+  if (e.target === shopModal) {
+    shopModal.style.display = 'none';
+  }
+});
+
+
+
+
 
 // Application des couleurs et émojis
 function applyColorAndEmoji() {
