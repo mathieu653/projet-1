@@ -34,7 +34,13 @@ const colors = [
   { id: 'skin-3', price: 30, desc: 'Vert carré' },
   { id: 'skin-4', price: 40, desc: 'Jaune dégradé' },
   { id: 'skin-5', price: 50, desc: 'Violet carré' },
+  { id: 'skin-6', price: 60, desc: 'Orange dégradé' },
+  { id: 'skin-7', price: 70, desc: 'Rose classique' },
+  { id: 'skin-8', price: 80, desc: 'Cyan dégradé' },
+  { id: 'skin-9', price: 90, desc: 'Gris carré' },
+  { id: 'skin-10', price: 100, desc: 'Noir dégradé' },
 ];
+
 
 // Catalogue d'émojis
 const emojis = [
@@ -43,7 +49,44 @@ const emojis = [
   { id: 'emoji-3', emoji: '👾', price: 35, desc: 'Alien' },
   { id: 'emoji-4', emoji: '🚀', price: 45, desc: 'Fusée' },
   { id: 'emoji-5', emoji: '💰', price: 55, desc: 'Argent' },
+  { id: 'emoji-6', emoji: '🔥', price: 65, desc: 'Feu' },
+  { id: 'emoji-7', emoji: '🌟', price: 75, desc: 'Étoile' },
+  { id: 'emoji-8', emoji: '⚡️', price: 85, desc: 'Éclair' },
+  { id: 'emoji-9', emoji: '🕹️', price: 95, desc: 'Joystick' },
+  { id: 'emoji-10', emoji: '🎉', price: 105, desc: 'Confettis' },
 ];
+
+
+function applyGameAreaSize(size) {
+  const gameArea = document.getElementById("gameArea");
+  gameArea.classList.remove("small", "medium", "large");
+  gameArea.classList.add(size);
+}
+
+document.getElementById("sizeSelect").addEventListener("change", (e) => {
+  const selectedSize = e.target.value;
+  applyGameAreaSize(selectedSize);
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const defaultSize = document.getElementById("sizeSelect").value;
+  applyGameAreaSize(defaultSize);
+});
+
+function moveTargetRandomly() {
+  const gameArea = document.getElementById("gameArea");
+  const btn = document.getElementById("targetBtn");
+
+  const maxX = gameArea.clientWidth - btn.offsetWidth;
+  const maxY = gameArea.clientHeight - btn.offsetHeight;
+
+  const x = Math.floor(Math.random() * maxX);
+  const y = Math.floor(Math.random() * maxY);
+
+  btn.style.left = `${x}px`;
+  btn.style.top = `${y}px`;
+}
+
 
 // Chargement des données
 function loadData() {
