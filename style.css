@@ -2,10 +2,55 @@
   --bg: #222;
   --text: #eee;
   --btn-bg: #3498db;
-  --btn-hover: #2980b9;
   --btn-active: #1abc9c;
   --border: #3498db;
 }
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --btn-color: #e0e0e0;
+  --btn-hover: #cccccc;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+button {
+  background-color: var(--btn-color);
+  color: var(--text-color);
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: var(--btn-hover);
+}
+
+#shopModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#shopModal .modalContent {
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+}
+
 
 body.light {
   --bg: #f0f0f0;
@@ -60,9 +105,11 @@ button, select {
   max-width: 150px;
 }
 
-button:hover, select:hover {
-  background: var(--btn-hover);
+#targetBtn:hover {
+  background: var(--btn-hover, #555); /* gris foncé par défaut si non défini */
 }
+
+
 
 #gameArea {
   position: relative;
@@ -110,15 +157,6 @@ body.light #gameArea {
   cursor: pointer;
 }
 
-#targetBtn:hover {
-  background: var(--btn-hover);
-  box-shadow: 0 0 20px var(--btn-hover);
-}
-
-#targetBtn:active {
-  background: var(--btn-active);
-  box-shadow: 0 0 25px var(--btn-active);
-}
 
 /* Skins styles */
 .skin-1 { background: #3498db; box-shadow: 0 0 10px #3498db; border-radius: 50%; }
@@ -128,8 +166,8 @@ body.light #gameArea {
 .skin-5 { background: #9b59b6; box-shadow: 0 0 15px #8e44ad; border-radius: 0%; }
 .skin-6 { background: #34495e; box-shadow: 0 0 15px #2c3e50; border-radius: 10%; }
 .skin-7 { background: #1abc9c; box-shadow: 0 0 15px #16a085; border-radius: 50%; }
-.skin-8 { background: #f39c12; box-shadow: 0 0 15px #e67e22; border-radius: 50%; }
-.skin-9 { background: #e74c3c; box-shadow: 0 0 15px #c0392b; border-radius: 50%; }
+.skin-8 { background: #FF1178; box-shadow: 0 0 15px pink; border-radius: 50%; }
+.skin-9 { background: #FFF205; box-shadow: 0 0 15px goldenrod; border-radius: 50%; }
 .skin-10 {
   background: linear-gradient(270deg, #ff0080, #ff8c00, #40e0d0, #8a2be2, #ff0080);
   background-size: 600% 600%;
@@ -170,9 +208,6 @@ body.light #gameArea {
 
 .default.green { background-color: #2ecc71; }
 .default.red { background-color: #e74c3c; }
-
-.futuristic.green { background: linear-gradient(...); }
-.futuristic.red { background: linear-gradient(...); }
 
 .pixels.green { background-image: url(...); }
 
@@ -218,7 +253,7 @@ body.light #gameArea {
   animation: rainbowShift 5s ease infinite;
   color: white;
   box-shadow: 0 0 20px #fff;
-  border: 3px solid #f39c12;
+  border: 3px solid black;
 }
 
 .skin-animated {
@@ -262,6 +297,43 @@ body.light #gameArea {
   color: white;
   user-select: none;
 }
+
+
+
+#shopTabs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.tabBtn {
+  padding: 8px 15px;
+  font-size: 1rem;
+  background: var(--btn-bg);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.tabBtn.active {
+  background: var(--btn-active);
+  box-shadow: 0 0 10px var(--btn-active);
+}
+
+.shopTab {
+  display: none;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.shopTab.active {
+  display: flex;
+}
+
 
 .shopItem.selected {
   border-color: #f39c12;
