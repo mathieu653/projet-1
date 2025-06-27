@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Labyrinthe Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 10px;
+      font-family: sans-serif;
+      background: linear-gradient(to right, #8e9eab, #eef2f3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin: 10px 0;
+    }
+
+    #controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    select, button {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #444;
+      width: 90vw;
+      max-width: 300px;
+    }
+
+    #maze {
+      display: grid;
+      margin: 10px 0;
+      touch-action: none;
+    }
+
+    .cell {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .cell {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .wall { background: black; }
+    .player { background: blue; }
+    .goal { background: green; }
+
+    #message, #timer, #leaderboard {
+      font-size: 1.1rem;
+      margin: 5px;
+      text-align: center;
+      width: 90vw;
+      max-width: 400px;
+    }
+
+    #arrows {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .arrow-btn {
+      width: 60px;
+      height: 60px;
+      font-size: 2rem;
+      border-radius: 50%;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .arrow-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+    <a href="menu.html" style="border: solid black; border-radius: 20%; background-color: lightseagreen; text-decoration: none; width: 80px; height: 25px; color: black;"><center>menu</center></a>
+    <h1>🧭 Labyrinthe</h1>
+
+    <div id="controls">
+      <select id="difficulty">
+        <option value="easy">Facile (11x11)</option>
+        <option value="medium" selected>Moyen (21x21)</option>
+        <option value="hard">Difficile (31x31)</option>
+      </select>
+      <button onclick="generateNewMaze()">🎲 Nouveau Labyrinthe</button>
+    </div>
+  
+    <div id="timer">⏱️ Temps : 0.00 s</div>
+    <div id="maze"></div>
+    <div id="message"></div>
+  
+    <!-- ✅ Ajout du texte explicatif -->
+    <p style="margin-top: 10px; font-weight: bold;">🕹️ Tu peux aussi utiliser les flèches du clavier !</p>
+  
+    <!-- ✅ Boutons fléchés déplacés ici -->
+    <div id="arrows">
+      <button class="arrow-btn" onclick="move(0, -1)">⬆️</button><br>
+      <button class="arrow-btn" onclick="move(-1, 0)">⬅️</button>
+      <button class="arrow-btn" onclick="move(1, 0)">➡️</button><br>
+      <button class="arrow-btn" onclick="move(0, 1)">⬇️</button>
+    </div>
+  
+    <!-- ✅ Classement en bas -->
+    <div id="leaderboard"></div>
+  <script>
+    const mazeContainer = document.getElementById("maze");
+    const message = document.getElementById("message");
+    const difficultySelector = document.getElementById("difficulty");
+    const timerDisplay = document.getElementById("timer");
+    const leaderboardDisplay = document.getElementById("leaderboard");
+
+    let playerX = 1, playerY = 1, size = 21, maze = [];
+    let startTime = null, timerInterval = null, started = false;
+    const sizes = { easy: 11, medium: 21, hard: 31 };
+
+    function createEmptyMaze(n) {
+      return Array.from({ length: n }, () => Array(n).fill("#"));
+    }
+
+    function generateMaze(x, y, maze) {
+      maze[y][x] = " ";
+      const directions = [[0, -2], [2, 0], [0, 2], [-2, 0]].sort(() => Math.random() - 0.5);
+      for (const [dx, dy] of directions) {
+        const nx = x + dx, ny = y + dy;
+        if (ny > 0 && ny < maze.length && nx > 0 && nx < maze.length && maze[ny][nx] === "#") {
+          maze[y + dy / 2][x + dx / 2] = " ";
+          generateMaze(nx, ny, maze);
+        }
+      }
+    }
+
+    function drawMaze() {
+      mazeContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+      mazeContainer.innerHTML = "";
+      maze[size - 2][size - 2] = "G";
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          if (maze[y][x] === "#") cell.classList.add("wall");
+          if (x === playerX && y === playerY) cell.classList.add("player");
+          if (maze[y][x] === "G") cell.classList.add("goal");
+          mazeContainer.appendChild(cell);
+        }
+      }
+    }
+
+    function move(dx, dy) {
+      const nx = playerX + dx;
+      const ny = playerY + dy;
+      if (maze[ny] && maze[ny][nx] && maze[ny][nx] !== "#") {
+        if (!started) startTimer();
+        playerX = nx;
+        playerY = ny;
+        drawMaze();
+        if (maze[ny][nx] === "G") {
+          stopTimer();
+          message.textContent = "🎉 Bravo ! Tu as terminé le labyrinthe !";
+          saveBestTime(getElapsed());
+        }
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowUp": move(0, -1); break;
+        case "ArrowDown": move(0, 1); break;
+        case "ArrowLeft": move(-1, 0); break;
+        case "ArrowRight": move(1, 0); break;
+      }
+    });
+
+    function getElapsed() {
+      return ((Date.now() - startTime) / 1000).toFixed(2);
+    }
+
+    function startTimer() {
+      started = true;
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        timerDisplay.textContent = `⏱️ Temps : ${getElapsed()} s`;
+      }, 100);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerDisplay.textContent = `⏱️ Temps final : ${getElapsed()} s`;
+    }
+
+    function generateNewMaze() {
+      message.textContent = "";
+      size = sizes[difficultySelector.value];
+      playerX = playerY = 1;
+      maze = createEmptyMaze(size);
+      generateMaze(1, 1, maze);
+      drawMaze();
+      clearInterval(timerInterval);
+      timerDisplay.textContent = `⏱️ Temps : 0.00 s`;
+      started = false;
+      showLeaderboard();
+    }
+
+    function saveBestTime(time) {
+      const key = `leaderboard_${difficultySelector.value}`;
+      const times = JSON.parse(localStorage.getItem(key)) || [];
+      times.push(parseFloat(time));
+      times.sort((a, b) => a - b);
+      if (times.length > 5) times.length = 5;
+      localStorage.setItem(key, JSON.stringify(times));
+      showLeaderboard();
+    }
+
+    function showLeaderboard() {
+      const key = `leaderboard_${difficultySelector.value}`;
+      const times = JSON.parse(localStorage.getItem(key)) || [];
+      leaderboardDisplay.innerHTML = `
+        🏆 Meilleurs temps (${difficultySelector.value}) :
+        <ol>${times.map(t => `<li>${t.toFixed(2)} s</li>`).join('')}</ol>
+      `;
+    }
+
+    generateNewMaze();
+  </script>
+</body>
+</html>

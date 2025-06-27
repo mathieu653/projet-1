@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jeu du Serpent - Mobile Friendly</title>
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #222;
+    color: #eee;
+    height: 100vh;
+    margin: 0;
+    justify-content: center;
+    user-select: none;
+  }
+  h1 {
+    margin-bottom: 10px;
+  }
+  #gameCanvas {
+    background: #000;
+    border: 3px solid #4CAF50;
+    border-radius: 10px;
+  }
+  #score {
+    margin-top: 10px;
+    font-size: 1.5rem;
+  }
+  #startBtn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    border: none;
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+  }
+  #startBtn:hover {
+    background-color: #45a049;
+  }
+  #mobileControls {
+    margin-top: 20px;
+    width: 180px;
+    height: 160px;
+    position: relative;
+    user-select: none;
+  }
+  .arrowBtn {
+    width: 50px;
+    height: 50px;
+    background-color: #4caf50;
+    border-radius: 10px;
+    color: white;
+    font-size: 2rem;
+    line-height: 50px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 4px #388e3c;
+    transition: background-color 0.2s ease;
+    position: absolute;
+    user-select: none;
+  }
+  .arrowBtn:active {
+    background-color: #388e3c;
+    box-shadow: 0 2px #2e7031;
+    transform: translateY(2px);
+  }
+  #upBtn { top: 0; left: 65px; }
+  #downBtn { bottom: 0; left: 65px; }
+  #leftBtn { top: 55px; left: 0; }
+  #rightBtn { top: 55px; right: 0; }
+</style>
+</head>
+<body>
+    <a href="menu.html" style="border: solid black; border-radius: 20%; background-color: lightseagreen; text-decoration: none; width: 80px; height: 25px; color: black;"><center>menu</center></a>
+<h1>Jeu du Serpent</h1>
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+<div id="score">Score : 0</div>
+<button id="startBtn">Démarrer</button>
+
+<div id="mobileControls">
+  <div class="arrowBtn" id="upBtn" aria-label="Haut" role="button">▲</div>
+  <div class="arrowBtn" id="leftBtn" aria-label="Gauche" role="button">◀</div>
+  <div class="arrowBtn" id="rightBtn" aria-label="Droite" role="button">▶</div>
+  <div class="arrowBtn" id="downBtn" aria-label="Bas" role="button">▼</div>
+</div>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreDisplay = document.getElementById('score');
+  const startBtn = document.getElementById('startBtn');
+
+  const gridSize = 20;
+  const tileCount = canvas.width / gridSize;
+
+  let snake = [{x: 10, y: 10}];
+  let velocity = {x: 0, y: 0};
+  let apple = {x: 5, y: 5};
+  let score = 0;
+  let gameInterval = null;
+  let gameRunning = false;
+
+  function resetGame() {
+    snake = [{x: 10, y: 10}];
+    velocity = {x: 0, y: 0};
+    placeApple();
+    score = 0;
+    scoreDisplay.textContent = `Score : ${score}`;
+    draw();
+  }
+
+  function placeApple() {
+    apple.x = Math.floor(Math.random() * tileCount);
+    apple.y = Math.floor(Math.random() * tileCount);
+    for (let part of snake) {
+      if (part.x === apple.x && part.y === apple.y) {
+        placeApple();
+        break;
+      }
+    }
+  }
+
+  function gameLoop() {
+    if (!gameRunning) return;
+
+    if (velocity.x === 0 && velocity.y === 0) {
+      // Ne rien faire si pas de direction choisie
+      draw();
+      return;
+    }
+
+    const head = {x: snake[0].x + velocity.x, y: snake[0].y + velocity.y};
+
+    // Murs
+    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+      endGame();
+      return;
+    }
+
+    // Collision corps
+    for (let part of snake) {
+      if (part.x === head.x && part.y === head.y) {
+        endGame();
+        return;
+      }
+    }
+
+    snake.unshift(head);
+
+    if (head.x === apple.x && head.y === apple.y) {
+      score++;
+      scoreDisplay.textContent = `Score : ${score}`;
+      placeApple();
+    } else {
+      snake.pop();
+    }
+
+    draw();
+  }
+
+  function draw() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#4CAF50';
+    for (let part of snake) {
+      ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize, gridSize);
+    }
+
+    ctx.fillStyle = '#FF4136';
+    ctx.fillRect(apple.x * gridSize, apple.y * gridSize, gridSize, gridSize);
+  }
+
+  function endGame() {
+    gameRunning = false;
+    clearInterval(gameInterval);
+    alert(`Game Over ! Ton score : ${score}`);
+    startBtn.disabled = false;
+  }
+
+  // Gestion clavier
+  document.addEventListener('keydown', e => {
+    if (!gameRunning) return;
+    switch(e.key) {
+      case 'ArrowUp':
+        if (velocity.y === 1) break;
+        velocity = {x: 0, y: -1};
+        break;
+      case 'ArrowDown':
+        if (velocity.y === -1) break;
+        velocity = {x: 0, y: 1};
+        break;
+      case 'ArrowLeft':
+        if (velocity.x === 1) break;
+        velocity = {x: -1, y: 0};
+        break;
+      case 'ArrowRight':
+        if (velocity.x === -1) break;
+        velocity = {x: 1, y: 0};
+        break;
+    }
+  });
+
+  // Contrôles tactiles
+  function setDirection(x, y) {
+    if (!gameRunning) return;
+    if (velocity.x === -x && velocity.y === -y) return;
+    velocity = {x, y};
+  }
+  document.getElementById('upBtn').addEventListener('touchstart', e => {
+    e.preventDefault();
+    setDirection(0, -1);
+  });
+  document.getElementById('downBtn').addEventListener('touchstart', e => {
+    e.preventDefault();
+    setDirection(0, 1);
+  });
+  document.getElementById('leftBtn').addEventListener('touchstart', e => {
+    e.preventDefault();
+    setDirection(-1, 0);
+  });
+  document.getElementById('rightBtn').addEventListener('touchstart', e => {
+    e.preventDefault();
+    setDirection(1, 0);
+  });
+
+  // Pour que les boutons aussi fonctionnent sur desktop (click)
+  document.getElementById('upBtn').addEventListener('mousedown', e => {
+    e.preventDefault();
+    setDirection(0, -1);
+  });
+  document.getElementById('downBtn').addEventListener('mousedown', e => {
+    e.preventDefault();
+    setDirection(0, 1);
+  });
+  document.getElementById('leftBtn').addEventListener('mousedown', e => {
+    e.preventDefault();
+    setDirection(-1, 0);
+  });
+  document.getElementById('rightBtn').addEventListener('mousedown', e => {
+    e.preventDefault();
+    setDirection(1, 0);
+  });
+
+  startBtn.addEventListener('click', () => {
+    if (gameRunning) return;
+    resetGame();
+    velocity = {x: 0, y: 0}; // Correctement initialisé
+    gameRunning = true;
+    startBtn.disabled = true;
+    gameInterval = setInterval(gameLoop, 100);
+  });
+
+  draw();
+</script>
+
+</body>
+</html>

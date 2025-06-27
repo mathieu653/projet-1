@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Click Challenge</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #333;
+        }
+
+        select, button, input {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+        }
+
+        #clickBtn {
+            padding: 20px 40px;
+            font-size: 2rem;
+            background-color: #ff6b6b;
+            color: white;
+            cursor: pointer;
+        }
+
+        #clickBtn:hover {
+            background-color: #ee5253;
+        }
+
+        #startBtn {
+            background-color: #1dd1a1;
+            color: white;
+            cursor: pointer;
+        }
+
+        #startBtn:hover {
+            background-color: #10ac84;
+        }
+
+        #score, #timer, #message, #bestScore {
+            font-size: 1.5rem;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <a href="menu.html" style="border: solid black; border-radius: 20%; background-color: lightseagreen; text-decoration: none; width: 80px; height: 25px; color: black;"><center>menu</center></a>
+    <h1>💥 Click Challenge 💥</h1>
+
+    <label for="durationSelect">Choisis la durée :</label>
+    <select id="durationSelect">
+        <option value="5">5 secondes</option>
+        <option value="10">10 secondes</option>
+        <option value="15">15 secondes</option>
+        <option value="20">20 secondes</option>
+    </select>
+
+    <div id="timer">Temps restant : --</div>
+    <div id="score">Score : 0</div>
+    <div id="bestScore">Meilleur score : --</div>
+
+    <button id="clickBtn" disabled onclick="handleClick()">Clique !</button>
+    <button id="startBtn" onclick="startGame()">Démarrer</button>
+
+    <div id="message"></div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 0;
+        let duration = 5;
+        let countdown;
+        let gameStarted = false;
+
+        const timerEl = document.getElementById('timer');
+        const scoreEl = document.getElementById('score');
+        const bestScoreEl = document.getElementById('bestScore');
+        const messageEl = document.getElementById('message');
+        const clickBtn = document.getElementById('clickBtn');
+        const durationSelect = document.getElementById('durationSelect');
+
+        function updateBestScoreDisplay() {
+            const best = localStorage.getItem('bestScore_' + duration) || 0;
+            bestScoreEl.textContent = "Meilleur score : " + best;
+        }
+
+        function startGame() {
+            duration = parseInt(durationSelect.value);
+            timeLeft = duration;
+            score = 0;
+            gameStarted = true;
+
+            scoreEl.textContent = "Score : 0";
+            messageEl.textContent = "";
+            timerEl.textContent = "Temps restant : " + timeLeft + "s";
+            clickBtn.disabled = false;
+
+            updateBestScoreDisplay();
+
+            clearInterval(countdown);
+            countdown = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = "Temps restant : " + timeLeft + "s";
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    clickBtn.disabled = true;
+                    gameStarted = false;
+                    messageEl.textContent = "⏱ Temps écoulé ! Ton score final est : " + score;
+
+                    const bestKey = 'bestScore_' + duration;
+                    const currentBest = parseInt(localStorage.getItem(bestKey)) || 0;
+                    if (score > currentBest) {
+                        localStorage.setItem(bestKey, score);
+                        messageEl.textContent += " 🏆 Nouveau meilleur score !";
+                    }
+                    updateBestScoreDisplay();
+                }
+            }, 1000);
+        }
+
+        function handleClick() {
+            if (gameStarted) {
+                score++;
+                scoreEl.textContent = "Score : " + score;
+            }
+        }
+
+        durationSelect.addEventListener('change', () => {
+            duration = parseInt(durationSelect.value);
+            updateBestScoreDisplay();
+        });
+
+        // Afficher le meilleur score dès le chargement initial
+        window.onload = updateBestScoreDisplay;
+    </script>
+</body>
+</html>

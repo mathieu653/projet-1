@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Devine le Nombre</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #8e9eab, #eef2f3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 4rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 2rem;
+            color: #444;
+            margin: 10px 0;
+        }
+
+        input {
+            padding: 15px;
+            font-size: 1.5rem;
+            width: 200px;
+            margin: 15px;
+            border-radius: 10px;
+            border: 2px solid #aaa;
+            text-align: center;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 10px;
+            margin: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #checkBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #restartBtn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #result {
+            margin-top: 30px;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        #timer {
+            font-size: 1.5rem;
+            color: #222;
+            margin-top: 10px;
+        }
+
+        #leaderboard {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #leaderboard h2 {
+            margin-bottom: 10px;
+        }
+
+        #leaderboard ol {
+            font-size: 1.2rem;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <a href="menu.html" style="border: solid black; border-radius: 20%; background-color: lightseagreen; text-decoration: none; width: 80px; height: 25px; color: black;"><center>menu</center></a>
+    <h1>Devine le Nombre !</h1>
+    <p>Choisis un nombre entre 1 et 100 :</p>
+    <input type="number" id="guess" min="1" max="100">
+    <div>
+        <button id="checkBtn" onclick="checkGuess()">Vérifier</button>
+        <button id="restartBtn" onclick="restartGame()">Recommencer</button>
+    </div>
+    <p id="timer">Temps : 0.0s</p>
+    <p id="result"></p>
+
+    <div id="leaderboard">
+        <h2>🏆 Top 5 des temps</h2>
+        <ol id="topTimesList"></ol>
+    </div>
+
+    <!-- Script confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        let numberToGuess = Math.floor(Math.random() * 100) + 1;
+        let startTime = null;
+        let interval = null;
+        let gameEnded = false;
+
+        function startTimer() {
+            startTime = Date.now();
+            interval = setInterval(updateTimer, 100);
+        }
+
+        function updateTimer() {
+            if (!gameEnded) {
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                document.getElementById('timer').textContent = `Temps : ${elapsed}s`;
+            }
+        }
+
+        function stopTimer() {
+            clearInterval(interval);
+        }
+
+        function checkGuess() {
+            if (gameEnded) return;
+
+            const userGuess = parseInt(document.getElementById('guess').value);
+            const result = document.getElementById('result');
+
+            if (isNaN(userGuess)) {
+                result.textContent = "❗ Veuillez entrer un nombre valide.";
+                return;
+            }
+
+            if (startTime === null) {
+                startTimer();
+            }
+
+            if (userGuess === numberToGuess) {
+                gameEnded = true;
+                stopTimer();
+                const timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
+                result.textContent = `🎉 Bravo ! Tu as deviné le bon nombre en ${timeTaken}s.`;
+                launchConfetti();
+                updateLeaderboard(parseFloat(timeTaken));
+            } else if (userGuess < numberToGuess) {
+                result.textContent = "🔼 C'est plus !";
+            } else {
+                result.textContent = "🔽 C'est moins !";
+            }
+        }
+
+        function restartGame() {
+            numberToGuess = Math.floor(Math.random() * 100) + 1;
+            document.getElementById('guess').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('timer').textContent = 'Temps : 0.0s';
+            gameEnded = false;
+            startTime = null;
+            stopTimer();
+        }
+
+        function launchConfetti() {
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function updateLeaderboard(time) {
+            const leaderboard = JSON.parse(localStorage.getItem('topTimes')) || [];
+            leaderboard.push(time);
+            leaderboard.sort((a, b) => a - b);
+            const top5 = leaderboard.slice(0, 5);
+            localStorage.setItem('topTimes', JSON.stringify(top5));
+            displayLeaderboard(top5);
+        }
+
+        function displayLeaderboard(times) {
+            const list = document.getElementById('topTimesList');
+            list.innerHTML = '';
+            times.forEach((t, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${t}s`;
+                list.appendChild(li);
+            });
+        }
+
+        // Initial load
+        window.onload = () => {
+            const stored = JSON.parse(localStorage.getItem('topTimes'));
+            if (stored) displayLeaderboard(stored);
+        };
+    </script>
+</body>
+</html>

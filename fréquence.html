@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jeu de Mémoire Avancé</title>
+  <style>
+    :root {
+      --bg: #1e1e2f;
+      --text: white;
+      --btn: #9b59b6;
+    }
+
+    body.light {
+      --bg: #f0f0f0;
+      --text: #222;
+      --btn: #2980b9;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin: 20px 0 10px;
+    }
+
+    #gameBoard {
+      display: grid;
+      grid-template-columns: repeat(2, 40vw);
+      grid-template-rows: repeat(2, 40vw);
+      gap: 10px;
+      margin-top: 10px;
+      max-width: 90vw;
+    }
+
+    .colorBtn {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 15px;
+      opacity: 0.8;
+      transition: transform 0.2s ease, opacity 0.3s ease;
+      font-size: 0;
+      cursor: pointer;
+    }
+
+    .colorBtn.active {
+      transform: scale(1.05);
+      opacity: 1;
+      box-shadow: 0 0 25px white;
+    }
+
+    .green { background-color: #2ecc71; }
+    .red { background-color: #e74c3c; }
+    .yellow { background-color: #f1c40f; }
+    .blue { background-color: #3498db; }
+
+    button, select {
+      cursor: pointer;
+      margin-top: 10px;
+      padding: 10px 18px;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      background-color: var(--btn);
+      color: white;
+    }
+
+    #controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #status, #timer {
+      font-size: 1.1rem;
+      margin-top: 15px;
+    }
+
+    #highScores {
+      margin-top: 20px;
+      font-size: 1rem;
+    }
+
+    #highScores ol {
+      padding-left: 20px;
+      text-align: left;
+    }
+
+    @media (min-width: 600px) {
+      #gameBoard {
+        grid-template-columns: repeat(2, 150px);
+        grid-template-rows: repeat(2, 150px);
+      }
+
+      .colorBtn {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 Jeu de Mémoire</h1>
+  <a href="menu.html" style="border: solid black; border-radius: 20%; background-color: lightseagreen; text-decoration: none; width: 80px; height: 25px; color: black;"><center>menu</center></a>
+
+  <div id="gameBoard">
+    <button class="colorBtn green" id="green"></button>
+    <button class="colorBtn red" id="red"></button>
+    <button class="colorBtn yellow" id="yellow"></button>
+    <button class="colorBtn blue" id="blue"></button>
+  </div>
+
+  <div id="controls">
+    <button onclick="startGame()">Démarrer</button>
+
+    <label>
+      Mode Survie
+      <input type="checkbox" id="survivalMode" onchange="toggleSurvival()" />
+    </label>
+
+    <select id="timeSelector" disabled>
+      <option value="3">3s</option>
+      <option value="5" selected>5s</option>
+      <option value="10">10s</option>
+    </select>
+
+    <label>
+      Difficulté :
+      <select id="difficultySelector">
+        <option value="easy">Facile</option>
+        <option value="normal" selected>Normal</option>
+        <option value="hard">Difficile</option>
+      </select>
+    </label>
+
+    <button onclick="toggleTheme()">🌗 Thème</button>
+  </div>
+
+  <div id="status"></div>
+  <div id="timer"></div>
+
+  <div id="highScores">
+    <h3>🏆 Meilleurs Scores (Top 5)</h3>
+    <div id="scoresContainer"></div>
+  </div>
+
+  <script>
+    const colors = ["green", "red", "yellow", "blue"];
+    let sequence = [], userSequence = [];
+    let level = 0, clickable = false;
+    let countdown, timeLeft = 5;
+    let survivalEnabled = false;
+
+    // Vitesse d'affichage en ms selon difficulté
+    const speedMap = {
+      easy: 1000,
+      normal: 600,
+      hard: 350
+    };
+
+    let currentSpeed = speedMap.normal;
+
+    const sounds = {
+      green: new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"),
+      red: new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg"),
+      yellow: new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"),
+      blue: new Audio("https://actions.google.com/sounds/v1/cartoon/metal_twang.ogg")
+    };
+
+    const timerEl = document.getElementById("timer");
+    const statusEl = document.getElementById("status");
+    const scoresContainer = document.getElementById("scoresContainer");
+
+    document.getElementById("survivalMode").addEventListener("change", () => {
+      document.getElementById("timeSelector").disabled = !document.getElementById("survivalMode").checked;
+    });
+
+    document.getElementById("difficultySelector").addEventListener("change", () => {
+      currentSpeed = speedMap[document.getElementById("difficultySelector").value];
+      updateScoreList();
+    });
+
+    function toggleSurvival() {
+      survivalEnabled = document.getElementById("survivalMode").checked;
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+    }
+
+    function startGame() {
+      sequence = [];
+      userSequence = [];
+      level = 0;
+      statusEl.textContent = "";
+      nextRound();
+    }
+
+    function nextRound() {
+      level++;
+      statusEl.textContent = `Niveau ${level}`;
+      userSequence = [];
+      const nextColor = colors[Math.floor(Math.random() * colors.length)];
+      sequence.push(nextColor);
+      playSequence();
+    }
+
+    function playSequence() {
+      clickable = false;
+      let i = 0;
+      clearInterval(countdown);
+      timerEl.textContent = "";
+
+      const interval = setInterval(() => {
+        const color = sequence[i];
+        flash(color);
+        i++;
+        if (i >= sequence.length) {
+          clearInterval(interval);
+          setTimeout(() => {
+            clickable = true;
+            if (survivalEnabled) startCountdown();
+          }, 300);
+        }
+      }, currentSpeed);
+    }
+
+    function flash(color) {
+      const btn = document.getElementById(color);
+      btn.classList.add("active");
+      sounds[color].currentTime = 0;
+      sounds[color].play();
+      setTimeout(() => btn.classList.remove("active"), currentSpeed / 2);
+    }
+
+    function handleClick(color) {
+      if (!clickable) return;
+
+      userSequence.push(color);
+      flash(color);
+
+      if (survivalEnabled) {
+        clearInterval(countdown);
+        startCountdown();
+      }
+
+      const index = userSequence.length - 1;
+      if (userSequence[index] !== sequence[index]) {
+        gameOver();
+        return;
+      }
+
+      if (userSequence.length === sequence.length) {
+        saveScore(level);
+        clearInterval(countdown);
+        setTimeout(nextRound, 800);
+      }
+    }
+
+    function startCountdown() {
+      timeLeft = parseInt(document.getElementById("timeSelector").value);
+      timerEl.textContent = `⏳ Temps : ${timeLeft}s`;
+
+      countdown = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = `⏳ Temps : ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          gameOver();
+        }
+      }, 1000);
+    }
+
+    function gameOver() {
+      clickable = false;
+      clearInterval(countdown);
+      statusEl.textContent = `❌ Perdu au niveau ${level}. Clique sur Démarrer pour recommencer.`;
+      saveScore(level - 1);
+    }
+
+    // Sauvegarde les scores dans localStorage avec clé selon la difficulté
+    function saveScore(score) {
+      if(score < 1) return; // ne pas sauvegarder scores 0 ou négatifs
+      const difficulty = document.getElementById("difficultySelector").value;
+      const key = `topScores_${difficulty}`;
+      let scores = JSON.parse(localStorage.getItem(key) || "[]");
+      scores.push(score);
+      scores.sort((a, b) => b - a);
+      scores = scores.slice(0, 5);
+      localStorage.setItem(key, JSON.stringify(scores));
+      updateScoreList();
+    }
+
+    // Affiche les scores selon la difficulté choisie
+    function updateScoreList() {
+      const difficulty = document.getElementById("difficultySelector").value;
+      const key = `topScores_${difficulty}`;
+      const scores = JSON.parse(localStorage.getItem(key) || "[]");
+
+      scoresContainer.innerHTML = `<h4>Difficulté : ${capitalize(difficulty)}</h4>`;
+      if(scores.length === 0) {
+        scoresContainer.innerHTML += "<p>Aucun score enregistré.</p>";
+        return;
+      }
+
+      const ol = document.createElement("ol");
+      scores.forEach(score => {
+        const li = document.createElement("li");
+        li.textContent = `Niveau ${score}`;
+        ol.appendChild(li);
+      });
+      scoresContainer.appendChild(ol);
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Initialisation
+    colors.forEach(color => {
+      document.getElementById(color).addEventListener("click", () => handleClick(color));
+    });
+
+    updateScoreList();
+  </script>
+</body>
+</html>

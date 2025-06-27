@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menu Principal</title>
+  <style>
+    /* Reset basique */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #f5f7fa;
+      color: #333;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      flex-direction: column;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-weight: 700;
+      font-size: 2.5rem;
+      color: #222;
+      letter-spacing: 1.5px;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    nav a {
+      display: block;
+      text-decoration: none;
+      background-color: #007BFF;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      box-shadow: 0 4px 8px rgb(0 123 255 / 0.3);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    nav a:hover,
+    nav a:focus {
+      background-color: #0056b3;
+      box-shadow: 0 6px 12px rgb(0 86 179 / 0.6);
+      outline: none;
+    }
+
+    @media (max-width: 400px) {
+      nav a {
+        font-size: 1rem;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Menu Principal</h1>
+  <nav>
+    <a href="index.html">Click Rapide</a>
+    <a href="cherche le nombre complexe.html">Cherche Le Nombre</a>
+    <a href="fréquence.html">Mémori</a>
+    <a href="jeu de clique.html">Speed Click</a>
+    <a href="réflexe.html">Test De Réflexe</a>
+    <a href="sors du labyrinthe.html">Labyrinthe</a>
+    <a href="snake.html">Snake</a>
+  </nav>
+</body>
+</html>
